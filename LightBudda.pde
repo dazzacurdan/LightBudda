@@ -9,8 +9,8 @@ import blobDetection.*;
 
 BlobDetection theBlobDetection;
 int previuosBlobNumber;
-float blobTh;
-float blobAreaTh;
+float blobTh = 0.10f;
+float blobAreaTh = 70000.0f;
 
 ArrayList<SoundFile> sounds = new ArrayList<SoundFile>();
 Movie myMovie;
@@ -32,32 +32,55 @@ int maxDepth = 860;
 // What is the kinect's angle
 float angle;
 
+XML xml;
+
+boolean loadXMLConfiguration()
+{
+  xml = loadXML("config.xml");
+  minDepth = Integer.parseInt(xml.getChild("minDepth").getContent());
+  maxDepth = Integer.parseInt(xml.getChild("maxDepth").getContent());
+  blobTh = float(xml.getChild("blobTh").getContent());
+  blobAreaTh = float(xml.getChild("blobAreaTh").getContent());
+  return true;
+}
+
+boolean saveXMLConfig()
+{
+  xml = loadXML("config.xml");
+  xml.getChild("minDepth").setContent(String.valueOf(minDepth));
+  xml.getChild("maxDepth").setContent(String.valueOf(maxDepth));
+  xml.getChild("blobTh").setContent(String.valueOf(blobTh));
+  xml.getChild("blobAreaTh").setContent(String.valueOf(blobAreaTh));
+  return true;
+}
+
 void setup() {
   
   fullScreen(JAVA2D);
   //size(640,480);
   
-  kinect = new Kinect(this);
-  kinect.initDepth();
-  angle = kinect.getTilt();
-
-  // Blank image
-  depthImg = new PImage(kinect.width, kinect.height);
-  
-  myMovie = new Movie(this, backgroundName);
-  //myMovie.play();
-  myMovie.loop();
-  
-  for(int i=0; i < 8 ;++i)
+  if(loadXMLConfiguration())
   {
-    sounds.add( new SoundFile(this, "0"+i+".mp3"));
-  }
+    kinect = new Kinect(this);
+    kinect.initDepth();
+    angle = kinect.getTilt();
+
+    // Blank image
+    depthImg = new PImage(kinect.width, kinect.height);
   
-  theBlobDetection = new BlobDetection(kinect.width, kinect.height);
-  blobTh = 0.10f;
-  theBlobDetection.setThreshold(blobTh);
-  previuosBlobNumber = 0;
-  blobAreaTh = 70000.0f;
+    myMovie = new Movie(this, backgroundName);
+    //myMovie.play();
+    myMovie.loop();
+  
+    for(int i=0; i < 8 ;++i)
+    {
+      sounds.add( new SoundFile(this, "0"+i+".mp3"));
+    }
+  
+    theBlobDetection = new BlobDetection(kinect.width, kinect.height);
+    theBlobDetection.setThreshold(blobTh);
+    previuosBlobNumber = 0;
+  }
 }
 
 void draw() {
@@ -134,6 +157,8 @@ void keyPressed() {
     theBlobDetection.setThreshold(blobTh);
   } else if (key =='p') {
     sounds.get(int(random(8))).play();
+  } else if (key =='o') {
+    saveXMLConfig();
   }
   
 }

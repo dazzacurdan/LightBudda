@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<configurations>
+    <minDepth>60</minDepth>
+    <maxDepth>860</maxDepth>
+    <blobTh>0.10</blobTh>
+    <blobAreaTh>70000.0</blobAreaTh>
+</configurations>
